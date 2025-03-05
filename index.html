@@ -3,37 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weather App</title>
+    <title>Weather App - Modern UI</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>Weather App</h1>
-            <button id="settings-btn">⚙️</button>
-        </header>
-
-        <div class="settings-menu" id="settings-menu">
-            <p>Mode Tampilan:</p>
-            <button id="light-mode">🌞 Siang</button>
-            <button id="dark-mode">🌙 Malam</button>
-        </div>
-
+        <h2 class="title">🌤️ Weather App</h2>
+        <button class="mode-toggle" onclick="toggleMode()">🌙 Mode Malam</button>
         <div class="search-box">
-            <input type="text" id="city-input" placeholder="Cari Kota...">
-            <button id="search-btn">🔍</button>
+            <input type="text" id="cityInput" placeholder="Cari kota..." />
+            <button onclick="getWeather()">🔍</button>
         </div>
-
-        <div class="weather-info">
-            <h2 id="location"></h2>
-            <p id="coordinates"></p>
-            <img id="weather-icon" src="default-weather.png" alt="Weather Icon">
-            <p id="description"></p>
-            <p><strong>Suhu:</strong> <span id="temperature"></span>°C</p>
-            <p><strong>Kelembapan:</strong> <span id="humidity"></span>%</p>
-        </div>
-
-        <div class="hourly-forecast" id="hourly-forecast"></div>
+        <div id="weatherResult" class="weather-card"></div>
     </div>
 
     <script src="script.js"></script>
