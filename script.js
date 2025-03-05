@@ -59,6 +59,7 @@ async function getWeather() {
             <p>⛅ Deskripsi Cuaca: ${weatherText}</p>
         `;
 
+        // Tampilkan hasil cuaca
         document.getElementById("weatherResult").classList.add("show");
 
     } catch (error) {
@@ -68,23 +69,26 @@ async function getWeather() {
     }
 }
 
+// Fungsi Toggle Mode Siang/Malam
 function toggleMode() {
     document.body.classList.toggle("dark-mode");
 
     const modeButton = document.querySelector(".mode-toggle");
     if (document.body.classList.contains("dark-mode")) {
-        modeButton.textContent = "☀️ Mode Siang";
+        modeButton.textContent = "☀️ Daytime Mode";
     } else {
-        modeButton.textContent = "🌙 Mode Malam";
+        modeButton.textContent = "🌙 Night Mode";
     }
 }
 
+// Set mode otomatis berdasarkan waktu
 function setModeAutomatically() {
     const hour = new Date().getHours();
     if (hour >= 18 || hour < 6) {
         document.body.classList.add("dark-mode");
-        document.querySelector(".mode-toggle").textContent = "☀️ Mode Siang";
+        document.querySelector(".mode-toggle").textContent = "☀️ Daytime Mode";
     }
 }
 
+// Jalankan saat halaman dimuat
 window.onload = setModeAutomatically;
