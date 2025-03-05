@@ -155,3 +155,11 @@ button {
     color: gray;
     padding: 5px;
 }
+
+.weather-card {
+    display: none; /* Sembunyikan sebelum ada data */
+}
+
+.weather-card.show {
+    display: block; /* Tampilkan jika ada data */
+}
