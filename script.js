@@ -1,103 +1,88 @@
-document.addEventListener("DOMContentLoaded", function () {
-    const searchBtn = document.getElementById("search-btn");
-    const cityInput = document.getElementById("city-input");
-    const weatherInfo = document.querySelector(".weather-info");
-    const hourlyForecast = document.getElementById("hourly-forecast");
-    const settingsBtn = document.getElementById("settings-btn");
-    const settingsMenu = document.getElementById("settings-menu");
-    const lightModeBtn = document.getElementById("light-mode");
-    const darkModeBtn = document.getElementById("dark-mode");
-    const weatherIcon = document.getElementById("weather-icon");
-
-    // ** Tampilkan menu setting saat tombol setting ditekan **
-    settingsBtn.addEventListener("click", () => {
-        settingsMenu.style.display = settingsMenu.style.display === "block" ? "none" : "block";
-    });
-
-    // ** Mode Siang & Malam **
-    lightModeBtn.addEventListener("click", () => {
-        document.body.classList.remove("dark-mode");
-        localStorage.setItem("theme", "light");
-    });
-
-    darkModeBtn.addEventListener("click", () => {
-        document.body.classList.add("dark-mode");
-        localStorage.setItem("theme", "dark");
-    });
-
-    // ** Cek mode yang tersimpan di localStorage **
-    if (localStorage.getItem("theme") === "dark") {
-        document.body.classList.add("dark-mode");
+async function getWeather() {
+    const city = document.getElementById("cityInput").value;
+    if (!city) {
+        alert("Masukkan nama kota!");
+        return;
     }
 
-    // ** Event cari cuaca **
-    searchBtn.addEventListener("click", () => {
-        const cityName = cityInput.value.trim();
-        if (cityName !== "") {
-            getWeather(cityName);
+    const geocodeUrl = `https://nominatim.openstreetmap.org/search?city=${city}&format=json&limit=1`;
+
+    try {
+        const geoResponse = await fetch(geocodeUrl);
+        const geoData = await geoResponse.json();
+
+        if (geoData.length === 0) {
+            document.getElementById("weatherResult").innerHTML = "<p>❌ Kota tidak ditemukan!</p>";
+            return;
         }
-    });
 
-    function getWeather(city) {
-        const apiUrl = `https://wttr.in/${city}?format=%C|%t|%h|%w|%l`;
+        const lat = geoData[0].lat;
+        const lon = geoData[0].lon;
+        const cityName = geoData[0].display_name;
 
-        fetch(apiUrl)
-            .then(response => response.text())
-            .then(data => {
-                const [condition, temperature, humidity, wind, location] = data.split("|");
+        const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`;
+        const weatherResponse = await fetch(weatherUrl);
+        const weatherData = await weatherResponse.json();
 
-                // ** Format lokasi agar lebih rapi **
-                let locationDetails = location.split(",");
-                let cityName = locationDetails[0]?.trim() || "-";
-                let province = locationDetails.length > 1 ? locationDetails[1]?.trim() : "-";
-                let country = locationDetails.length > 2 ? locationDetails[2]?.trim() : "-";
+        const temp = weatherData.current_weather.temperature;
+        const windSpeed = weatherData.current_weather.windspeed;
+        const weatherDesc = weatherData.current_weather.weathercode;
 
-                let formattedLocation = `${cityName}, ${province}, ${country}`;
+        const weatherDescriptions = {
+            0: "Cerah",
+            1: "Sebagian Berawan",
+            2: "Berawan",
+            3: "Mendung",
+            45: "Kabut",
+            48: "Kabut Beku",
+            51: "Gerimis Ringan",
+            53: "Gerimis Sedang",
+            55: "Gerimis Lebat",
+            61: "Hujan Ringan",
+            63: "Hujan Sedang",
+            65: "Hujan Lebat",
+            71: "Salju Ringan",
+            73: "Salju Sedang",
+            75: "Salju Lebat",
+            80: "Hujan Lokal Ringan",
+            81: "Hujan Lokal Sedang",
+            82: "Hujan Lokal Lebat"
+        };
+        const weatherText = weatherDescriptions[weatherDesc] || "Cuaca Tidak Diketahui";
 
-                // ** Set icon cuaca (fallback jika gagal) **
-                weatherIcon.src = `https://wttr.in/${city}_0pq_transparency=100.png`;
-                weatherIcon.onerror = () => {
-                    weatherIcon.src = "fallback-weather.png"; // Gambar cadangan
-                };
-
-                weatherInfo.innerHTML = `
-                    <h2 id="location">${formattedLocation}</h2>
-                    <img id="weather-icon" src="https://wttr.in/${city}_0pq_transparency=100.png" alt="Weather Icon">
-                    <p id="description">${condition}</p>
-                    <p><strong>Suhu:</strong> ${temperature}°C</p>
-                    <p><strong>Kelembapan:</strong> ${humidity}%</p>
-                `;
-
-                getHourlyForecast(city);
-            })
-            .catch(error => {
-                console.error("Error:", error);
-                weatherInfo.innerHTML = "<p>Gagal mengambil data cuaca.</p>";
-            });
+        document.getElementById("weatherResult").innerHTML = `
+            <h3>${cityName}</h3>
+            <p>🌍 Koordinat: ${lat}, ${lon}</p>
+            <p>🌡️ Suhu: ${temp}°C</p>
+            <p>🌬️ Angin: ${windSpeed} km/h</p>
+            <p>⛅ Deskripsi Cuaca: ${weatherText}</p>
+        `;
+    } catch (error) {
+        console.error("Terjadi kesalahan:", error);
+        document.getElementById("weatherResult").innerHTML = "<p>❌ Gagal mengambil data cuaca!</p>";
     }
+}
 
-    function getHourlyForecast(city) {
-        const apiUrl = `https://wttr.in/${city}?format=%C|%t|%h|%w&hours=8`;
+// Fungsi Toggle Mode Siang/Malam
+function toggleMode() {
+    document.body.classList.toggle("dark-mode");
 
-        fetch(apiUrl)
-            .then(response => response.text())
-            .then(data => {
-                const forecast = data.split("|");
-                let forecastHtml = "";
-
-                for (let i = 0; i < 8; i++) {
-                    let hour = new Date();
-                    hour.setHours(hour.getHours() + i);
-                    let timeString = hour.getHours() + ":00";
-
-                    forecastHtml += `<div class="hour">${timeString}<br> ${forecast[0]}, ${forecast[1]}</div>`;
-                }
-
-                hourlyForecast.innerHTML = forecastHtml;
-            })
-            .catch(error => {
-                console.error("Error:", error);
-                hourlyForecast.innerHTML = "<p>Gagal mengambil data prakiraan cuaca.</p>";
-            });
+    const modeButton = document.querySelector(".mode-toggle");
+    if (document.body.classList.contains("dark-mode")) {
+        modeButton.textContent = "☀️ Mode Siang";
+    } else {
+        modeButton.textContent = "🌙 Mode Malam";
     }
-});
+}
+
+// Set mode otomatis berdasarkan waktu
+function setModeAutomatically() {
+    const hour = new Date().getHours();
+    if (hour >= 18 || hour < 6) {
+        document.body.classList.add("dark-mode");
+        document.querySelector(".mode-toggle").textContent = "☀️ Mode Siang";
+    }
+}
+
+// Jalankan saat halaman dimuat
+window.onload = setModeAutomatically;
