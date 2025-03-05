@@ -13,6 +13,7 @@ async function getWeather() {
 
         if (geoData.length === 0) {
             document.getElementById("weatherResult").innerHTML = "<p>❌ Kota tidak ditemukan!</p>";
+            document.getElementById("weatherResult").classList.remove("show");
             return;
         }
 
@@ -57,9 +58,14 @@ async function getWeather() {
             <p>🌬️ Angin: ${windSpeed} km/h</p>
             <p>⛅ Deskripsi Cuaca: ${weatherText}</p>
         `;
+
+        // Tampilkan hasil cuaca
+        document.getElementById("weatherResult").classList.add("show");
+
     } catch (error) {
         console.error("Terjadi kesalahan:", error);
         document.getElementById("weatherResult").innerHTML = "<p>❌ Gagal mengambil data cuaca!</p>";
+        document.getElementById("weatherResult").classList.remove("show");
     }
 }
 
