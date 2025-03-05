@@ -1,7 +1,7 @@
 async function getWeather() {
     const city = document.getElementById("cityInput").value;
     if (!city) {
-        alert("Masukkan nama kota!");
+        alert("Please enter a city name!");
         return;
     }
 
@@ -12,7 +12,7 @@ async function getWeather() {
         const geoData = await geoResponse.json();
 
         if (geoData.length === 0) {
-            document.getElementById("weatherResult").innerHTML = "<p>❌ Kota tidak ditemukan!</p>";
+            document.getElementById("weatherResult").innerHTML = "<p>❌ City not found!</p>";
             document.getElementById("weatherResult").classList.remove("show");
             return;
         }
@@ -30,65 +30,67 @@ async function getWeather() {
         const weatherDesc = weatherData.current_weather.weathercode;
 
         const weatherDescriptions = {
-            0: "Cerah",
-            1: "Sebagian Berawan",
-            2: "Berawan",
-            3: "Mendung",
-            45: "Kabut",
-            48: "Kabut Beku",
-            51: "Gerimis Ringan",
-            53: "Gerimis Sedang",
-            55: "Gerimis Lebat",
-            61: "Hujan Ringan",
-            63: "Hujan Sedang",
-            65: "Hujan Lebat",
-            71: "Salju Ringan",
-            73: "Salju Sedang",
-            75: "Salju Lebat",
-            80: "Hujan Lokal Ringan",
-            81: "Hujan Lokal Sedang",
-            82: "Hujan Lokal Lebat"
+            0: "Clear",
+            1: "Partly Cloudy",
+            2: "Cloudy",
+            3: "Overcast",
+            45: "Fog",
+            48: "Freezing Fog",
+            51: "Light Drizzle",
+            53: "Moderate Drizzle",
+            55: "Heavy Drizzle",
+            61: "Light Rain",
+            63: "Moderate Rain",
+            65: "Heavy Rain",
+            71: "Light Snow",
+            73: "Moderate Snow",
+            75: "Heavy Snow",
+            80: "Light Local Rain",
+            81: "Moderate Local Rain",
+            82: "Heavy Local Rain"
         };
-        const weatherText = weatherDescriptions[weatherDesc] || "Cuaca Tidak Diketahui";
+        const weatherText = weatherDescriptions[weatherDesc] || "Unknown Weather Condition";
 
         document.getElementById("weatherResult").innerHTML = `
             <h3>${cityName}</h3>
-            <p>🌍 Koordinat: ${lat}, ${lon}</p>
-            <p>🌡️ Suhu: ${temp}°C</p>
-            <p>🌬️ Angin: ${windSpeed} km/h</p>
-            <p>⛅ Deskripsi Cuaca: ${weatherText}</p>
+            <p>🌍 Coordinates: ${lat}, ${lon}</p>
+            <p>🌡️ Temperature: ${temp}°C</p>
+            <p>🌬️ Wind Speed: ${windSpeed} km/h</p>
+            <p>⛅ Weather Description: ${weatherText}</p>
         `;
 
-        // Tampilkan hasil cuaca
+       
         document.getElementById("weatherResult").classList.add("show");
 
     } catch (error) {
-        console.error("Terjadi kesalahan:", error);
-        document.getElementById("weatherResult").innerHTML = "<p>❌ Gagal mengambil data cuaca!</p>";
+        console.error("An error occurred:", error);
+        document.getElementById("weatherResult").innerHTML = "<p>❌ Failed to fetch weather data!</p>";
         document.getElementById("weatherResult").classList.remove("show");
     }
 }
 
-// Fungsi Toggle Mode Siang/Malam
+
 function toggleMode() {
     document.body.classList.toggle("dark-mode");
 
     const modeButton = document.querySelector(".mode-toggle");
     if (document.body.classList.contains("dark-mode")) {
-        modeButton.textContent = "☀️ Daytime Mode";
+        modeButton.textContent = "☀️ Day Mode";
     } else {
         modeButton.textContent = "🌙 Night Mode";
     }
 }
 
-// Set mode otomatis berdasarkan waktu
+
 function setModeAutomatically() {
     const hour = new Date().getHours();
     if (hour >= 18 || hour < 6) {
         document.body.classList.add("dark-mode");
-        document.querySelector(".mode-toggle").textContent = "☀️ Daytime Mode";
+        document.querySelector(".mode-toggle").textContent = "☀️ Day Mode";
+    } else {
+        document.body.classList.remove("dark-mode");
+        document.querySelector(".mode-toggle").textContent = "🌙 Night Mode";
     }
 }
 
-// Jalankan saat halaman dimuat
 window.onload = setModeAutomatically;
